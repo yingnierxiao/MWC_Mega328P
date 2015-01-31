@@ -1,12 +1,12 @@
 # MWC_Mega328P
-A modified MWC 2.3 flight control for FlexbotNG board.
-
-2015.01.31 16:18 Deleted files:
-  Visual Micro [DIR]
-  CREDITS.txt
-  MultiWii.sdf
-  MultiWii.sln
-  MultiWii.v11.suo
-  MultiWii.vcxproj
-  MultiWii.vcxproj.filters
+A modified MWC 2.3 flight control for FlexbotNG board.<br>
+<br>
+2015.01.31 16:24 Deleted files:<br>
+> Visual Micro [DIR]<br>
+> CREDITS.txt<br>
+> MultiWii.sdf<br>
+> MultiWii.sln<br>
+> MultiWii.v11.suo<br>
+> MultiWii.vcxproj<br>
+> MultiWii.vcxproj.filters<br>
   
