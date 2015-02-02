@@ -304,7 +304,9 @@ conf_t conf;
   plog_t plog;
 #endif
 
+#if GPS
   gps_conf_struct GPS_conf;
+#endif
 
 // **********************
 // GPS common variables
@@ -340,8 +342,9 @@ conf_t conf;
 
   int16_t jump_times = -10;
 
+#if GPS
   mission_step_struct mission_step;
-
+#endif
 
   // The desired bank towards North (Positive) or South (Negative) : latitude
   // The desired bank towards East (Positive) or West (Negative)   : longitude
@@ -1332,6 +1335,7 @@ void loop () {
       static uint8_t isAltHoldChanged = 0;
       static int16_t AltHoldCorr = 0;
 
+#if GPS
 	  if (f.LAND_IN_PROGRESS)
 		  {
 		  AltHoldCorr -= GPS_conf.land_speed;
@@ -1340,6 +1344,7 @@ void loop () {
 			  AltHoldCorr %= 512;
 			  }
 		  }
+#endif
 
 	  if ( (abs(rcCommand[THROTTLE]-initialThrottleHold)>ALT_HOLD_THROTTLE_NEUTRAL_ZONE) && !f.THROTTLE_IGNORED) {
         // Slowly increase/decrease AltHold proportional to stick movement ( +100 throttle gives ~ +50 cm in 1 second with cycle time about 3-4ms)

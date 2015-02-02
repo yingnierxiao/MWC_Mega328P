@@ -43,7 +43,9 @@ extern plog_t plog;
 extern int16_t debug[4];
 
 extern conf_t conf;
-extern gps_conf_struct GPS_conf;
+#if GPS
+  extern gps_conf_struct GPS_conf;
+#endif
 extern int16_t  annex650_overrun_count;
 extern flags_struct_t f;
 extern uint16_t intPowerTrigger1;
@@ -188,8 +190,9 @@ extern uint8_t  land_detect;            //land detector variable
   // ************************
   // mission step structure
   // ************************
-  extern mission_step_struct mission_step;
-
+  #if GPS
+    extern mission_step_struct mission_step;
+  #endif
 
   //possible action codes for a mission step 
   #define MISSION_WAYPOINT      1			//Set waypoint
