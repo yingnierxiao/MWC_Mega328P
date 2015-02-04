@@ -1,3 +1,8 @@
+/* 
+ * MWC Mini 基于 MWC 2.3
+ *
+ */
+ 
 #ifndef IMU_H_
 #define IMU_H_
 

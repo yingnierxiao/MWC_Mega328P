@@ -1,12 +1,15 @@
-/*
-MultiWiiCopter by Alexandre Dubus
-www.multiwii.com
-November  2013     V2.3
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- any later version. see <http://www.gnu.org/licenses/>
-*/
+/* 
+ * MWC Mini 基于 MWC 2.3
+ *
+ * MultiWiiCopter by Alexandre Dubus
+ * www.multiwii.com
+ * November  2013     V2.3
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version. see <http://www.gnu.org/licenses/>'
+ *
+ */
 
 #include <avr/io.h>
 
@@ -23,7 +26,6 @@ November  2013     V2.3
 #include "RX.h"
 #include "Sensors.h"
 #include "Serial.h"
-#include "GPS.h"
 #include "Protocol.h"
 
 #include <avr/pgmspace.h>
@@ -66,10 +68,6 @@ const char boxnames[] PROGMEM = // names for dynamic generation of config GUI
   #if defined(CAMTRIG)
     "CAMTRIG;"
   #endif
-  #if GPS
-    "GPS HOME;"
-    "GPS HOLD;"
-  #endif
   #if defined(FIXEDWING) || defined(HELICOPTER)
     "PASSTHRU;"
   #endif
@@ -91,10 +89,6 @@ const char boxnames[] PROGMEM = // names for dynamic generation of config GUI
   #endif
   #ifdef OSD_SWITCH
     "OSD SW;"
-	  #endif
-  #ifdef GPS
-	"MISSION;"
-	"LAND;"
   #endif
 ;
 
@@ -121,10 +115,6 @@ const uint8_t boxids[] PROGMEM = {// permanent IDs associated to boxes. This way
   #if defined(CAMTRIG)
     9, //"CAMTRIG;"
   #endif
-  #if GPS
-    10, //"GPS HOME;"
-    11, //"GPS HOLD;"
-  #endif
   #if defined(FIXEDWING) || defined(HELICOPTER)
     12, //"PASSTHRU;"
   #endif
@@ -146,10 +136,6 @@ const uint8_t boxids[] PROGMEM = {// permanent IDs associated to boxes. This way
   #endif
   #ifdef OSD_SWITCH
     19, //"OSD_SWITCH;"
-	  #endif
-  #ifdef GPS
-	20, //"MISSION;"
-	21, //"LAND;"
   #endif
 };
 
@@ -194,7 +180,7 @@ flags_struct_t f;
   uint16_t cycleTimeMax = 0;       // highest ever cycle timen
   uint16_t cycleTimeMin = 65535;   // lowest ever cycle timen
   int32_t  BAROaltMax;             // maximum value
-  uint16_t GPS_speedMax = 0;       // maximum speed from gps
+//  uint16_t GPS_speedMax = 0;       // maximum speed from gps
   uint16_t powerValueMaxMAH = 0;
 #endif
 #if defined(LOG_VALUES) || defined(LCD_TELEMETRY) || defined(ARMEDTIMEWARNING) || defined(LOG_PERMANENT)
@@ -304,51 +290,44 @@ conf_t conf;
   plog_t plog;
 #endif
 
-#if GPS
-  gps_conf_struct GPS_conf;
-#endif
-
 // **********************
 // GPS common variables
 // **********************
 
-  int16_t  GPS_angle[2] = { 0, 0};                      // the angles that must be applied for GPS correction
-  int32_t  GPS_coord[2];
-  int32_t  GPS_home[2];
-  int32_t  GPS_hold[2];
-  int32_t  GPS_prev[2];									//previous pos
-  int32_t  GPS_poi[2];
-  uint8_t  GPS_numSat;
-  uint16_t GPS_distanceToHome;                          // distance to home  - unit: meter
-  int16_t  GPS_directionToHome;                         // direction to home - unit: degree
-  int32_t  GPS_directionToPoi;
-  uint16_t GPS_altitude;                                // GPS altitude      - unit: meter
-  uint16_t GPS_speed;                                   // GPS speed         - unit: cm/s
-  uint8_t  GPS_update = 0;                              // a binary toogle to distinct a GPS position update
-  uint16_t GPS_ground_course = 0;                       //                   - unit: degree*10
-  uint8_t  GPS_Present = 0;                             // Checksum from Gps serial
-  uint8_t  GPS_Enable  = 0;
-  uint32_t GPS_time;
+//  int16_t  GPS_angle[2] = { 0, 0};                      // the angles that must be applied for GPS correction
+//  int32_t  GPS_coord[2];
+//  int32_t  GPS_home[2];
+//  int32_t  GPS_hold[2];
+//  int32_t  GPS_prev[2];									//previous pos
+//  int32_t  GPS_poi[2];
+//  uint8_t  GPS_numSat;
+//  uint16_t GPS_distanceToHome;                          // distance to home  - unit: meter
+//  int16_t  GPS_directionToHome;                         // direction to home - unit: degree
+//  int32_t  GPS_directionToPoi;
+//  uint16_t GPS_altitude;                                // GPS altitude      - unit: meter
+//  uint16_t GPS_speed;                                   // GPS speed         - unit: cm/s
+//  uint8_t  GPS_update = 0;                              // a binary toogle to distinct a GPS position update
+//  uint16_t GPS_ground_course = 0;                       //                   - unit: degree*10
+//  uint8_t  GPS_Present = 0;                             // Checksum from Gps serial
+//  uint8_t  GPS_Enable  = 0;
+//  uint32_t GPS_time;
 
   //uint8_t GPS_mode  = GPS_MODE_NONE;	// contains the current selected gps flight mode
-  uint8_t NAV_state = NAV_STATE_NONE;  /// State of the nav engine
-  uint8_t NAV_error = NAV_ERROR_NONE;
-  uint8_t prv_gps_modes = 0;			  /// GPS_checkbox items packed into 1 byte for checking GPS mode changes
-  uint32_t nav_timer_stop = 0;		  /// common timer used in navigation (contains the desired stop time in millis()
-  uint16_t nav_hold_time;			  /// time in seconds to hold position
-  uint8_t NAV_paused_at = 0;		  // This contains the mission step where poshold paused the runing mission.
+//  uint8_t NAV_state = NAV_STATE_NONE;  /// State of the nav engine
+//  uint8_t NAV_error = NAV_ERROR_NONE;
+//  uint8_t prv_gps_modes = 0;			  /// GPS_checkbox items packed into 1 byte for checking GPS mode changes
+//  uint32_t nav_timer_stop = 0;		  /// common timer used in navigation (contains the desired stop time in millis()
+//  uint16_t nav_hold_time;			  /// time in seconds to hold position
+//  uint8_t NAV_paused_at = 0;		  // This contains the mission step where poshold paused the runing mission.
+//
+//  uint8_t next_step = 1;			      /// The mission step which is upcoming it equals with the mission_step stored in EEPROM
+//
+//  int16_t jump_times = -10;
 
-  uint8_t next_step = 1;			      /// The mission step which is upcoming it equals with the mission_step stored in EEPROM
-
-  int16_t jump_times = -10;
-
-#if GPS
-  mission_step_struct mission_step;
-#endif
 
   // The desired bank towards North (Positive) or South (Negative) : latitude
   // The desired bank towards East (Positive) or West (Negative)   : longitude
-  int16_t  nav[2];
+//  int16_t  nav[2];
 
 // The orginal altitude used as base our new altitude during nav
  int32_t 	original_altitude;
@@ -561,21 +540,6 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
     }
   #endif
 
-  #if GPS & defined(GPS_LED_INDICATOR)       // modified by MIS to use STABLEPIN LED for number of sattelites indication
-    static uint32_t GPSLEDTime;              // - No GPS FIX -> LED blink at speed of incoming GPS frames
-    static uint8_t blcnt;                    // - Fix and sat no. bellow 5 -> LED off
-    if(currentTime > GPSLEDTime) {           // - Fix and sat no. >= 5 -> LED blinks, one blink for 5 sat, two blinks for 6 sat, three for 7 ...
-      if(f.GPS_FIX && GPS_numSat >= 5) {
-        if(++blcnt > 2*GPS_numSat) blcnt = 0;
-        GPSLEDTime = currentTime + 150000;
-        if(blcnt >= 10 && ((blcnt%2) == 0)) {STABLEPIN_ON;} else {STABLEPIN_OFF;}
-      }else{
-        if((GPS_update == 1) && !f.GPS_FIX) {STABLEPIN_ON;} else {STABLEPIN_OFF;}
-        blcnt = 0;
-      }
-    }
-  #endif
-
   #if defined(LOG_VALUES) && (LOG_VALUES >= 2)
     if (cycleTime > cycleTimeMax) cycleTimeMax = cycleTime; // remember highscore
     if (cycleTime < cycleTimeMin) cycleTimeMin = cycleTime; // remember lowscore
@@ -590,9 +554,6 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
     #ifdef LCD_TELEMETRY
       #if BARO
         if ( (alt.EstAlt > BAROaltMax) ) BAROaltMax = alt.EstAlt;
-      #endif
-      #if GPS
-        if ( (GPS_speed > GPS_speedMax) ) GPS_speedMax = GPS_speed;
       #endif
     #endif
   }
@@ -657,10 +618,6 @@ void setup() {
   readEEPROM();                                 // load setting data from last used profile
   blinkLED(2,40,global_conf.currentSet+1);          
 
-#if GPS									
-  recallGPSconf();								//Load GPS configuration parameteres
-#endif
-
   configureReceiver();
   #if defined (PILOTLAMP) 
     PL_INIT;
@@ -669,9 +626,7 @@ void setup() {
     initOpenLRS();
   #endif
   initSensors();
-  #if defined(I2C_GPS) || defined(GPS_SERIAL)
-    GPS_set_pids();
-  #endif
+
   previousTime = micros();
   #if defined(GIMBAL)
    calibratingA = 512;
@@ -681,37 +636,8 @@ void setup() {
   #if defined(POWERMETER)
     for(uint8_t j=0; j<=PMOTOR_SUM; j++) pMeter[j]=0;
   #endif
-  /************************************/
-  #if defined(GPS_SERIAL)
-    GPS_SerialInit();
-    for(uint8_t j=0;j<=5;j++){
-      GPS_NewData(); 
-      LEDPIN_ON
-      delay(20);
-      LEDPIN_OFF
-      delay(80);
-    }
-    if(!GPS_Present){
-      SerialEnd(GPS_SERIAL);
-      SerialOpen(0,SERIAL0_COM_SPEED);
-    }
-    #if !defined(GPS_PROMINI)
-      GPS_Present = 1;
-    #endif
-    GPS_Enable = GPS_Present;    
-  #endif
-
-#if GPS
-	//Calculate maximum available Mission Step number (based on config and EEPROM size)
-	GPS_conf.max_wp_number = getMaxWPNumber();
-#endif 
 
   /************************************/
- 
-  #if defined(I2C_GPS) 
-   GPS_Enable = 1;
-  #endif
-  
   #if defined(LCD_ETPP) || defined(LCD_LCD03) || defined(OLED_I2C_128x64) || defined(OLED_DIGOLE) || defined(LCD_TELEMETRY_STEP)
     initLCD();
   #endif
@@ -767,9 +693,6 @@ void go_arm() {
       #ifdef LCD_TELEMETRY // reset some values when arming
         #if BARO
           BAROaltMax = alt.EstAlt;
-        #endif
-        #if GPS
-          GPS_speedMax = 0;
         #endif
         #ifdef POWERMETER_HARD
           powerValueMaxMAH = 0;
@@ -907,9 +830,7 @@ void loop () {
         i=0;
         if (rcSticks == THR_LO + YAW_LO + PIT_LO + ROL_CE) {    // GYRO calibration
           calibratingG=512;
-          #if GPS 
-            GPS_reset_home_position();
-          #endif
+
           #if BARO
             calibratingB=10;  // calibrate baro to new ground level (10 * 25 ms = ~250 ms non blocking)
           #endif
@@ -1039,18 +960,9 @@ void loop () {
       }
     #endif
 
-    if (rcOptions[BOXARM] == 0) f.OK_TO_ARM = 1;
-    #if !defined(GPS_LED_INDICATOR)
-      if (f.ANGLE_MODE || f.HORIZON_MODE) {STABLEPIN_ON;} else {STABLEPIN_OFF;}
-    #endif
-
-
-    
+    if (rcOptions[BOXARM] == 0) f.OK_TO_ARM = 1;  
 
     #if BARO
-      #if defined(GPS_SERIAL)
-	    if (GPS_conf.takeover_baro) rcOptions[BOXBARO] = (rcOptions[BOXBARO] || f.GPS_BARO_MODE);
-      #endif
       #if (!defined(SUPPRESS_BARO_ALTHOLD))
         if (rcOptions[BOXBARO]) {
           if (!f.BARO_MODE) {
@@ -1103,135 +1015,6 @@ void loop () {
         headFreeModeHold = att.heading; // acquire new heading
       }
     #endif
-#if GPS
-	  // This handles the three rcOptions boxes 
-	  // unlike other parts of the multiwii code, it looks for changes and not based on flag settings
-	  // by this method a priority can be established between gps option
-
-	  //Generate a packed byte of all three GPS boxes.
-	  uint8_t gps_modes_check = (rcOptions[BOXLAND]<< 3) + (rcOptions[BOXGPSHOME]<< 2) + (rcOptions[BOXGPSHOLD]<<1) + (rcOptions[BOXGPSNAV]);
-
-	  if (f.ARMED ) {                       //Check GPS status and armed
-		  //TODO: implement f.GPS_Trusted flag, idea from Dramida - Check for degraded HDOP and sudden speed jumps
-		  if (f.GPS_FIX) {
-			  if (GPS_numSat >5 ) {
-
-				  if (prv_gps_modes != gps_modes_check) {                           //Check for change since last loop
-					  NAV_error = NAV_ERROR_NONE;
-					  if (rcOptions[BOXGPSHOME])									// RTH has the priotity over everything else
-						  {
-							init_RTH();
-						  }
-					  else if (rcOptions[BOXGPSHOLD])								//Position hold has priority over mission execution
-						  {                                                         //But has less priority than RTH
-						  #if defined(I2C_GPS)
-						    f.GPS_mode = GPS_MODE_HOLD;
-						    GPS_I2C_command(I2C_GPS_COMMAND_POSHOLD,0);
-						  #else
-						    if (f.GPS_mode == GPS_MODE_NAV)
-							    { NAV_paused_at = mission_step.number; }
-						    f.GPS_mode = GPS_MODE_HOLD;
-						    GPS_set_next_wp(&GPS_coord[LAT], &GPS_coord[LON],&GPS_coord[LAT], & GPS_coord[LON]);		//hold at the current position
-						    set_new_altitude(alt.EstAlt);							//and current altitude
-						    NAV_state = NAV_STATE_HOLD_INFINIT;
-                          #endif
-						  }
-					  else if (rcOptions[BOXLAND])									//Land now
-						  {
-						  f.GPS_mode = GPS_MODE_HOLD;
-						  GPS_set_next_wp(&GPS_coord[LAT], &GPS_coord[LON],&GPS_coord[LAT], & GPS_coord[LON]);	
-						  set_new_altitude(alt.EstAlt);
-						  NAV_state = NAV_STATE_LAND_START;
-						  }
-					  else if (rcOptions[BOXGPSNAV])								//Start navigation
-						  {
-						  #if defined(I2C_GPS)
-						    GPS_I2C_command(I2C_GPS_COMMAND_POSHOLD,0);				//Poshold with I2CGPS
-                          #else
-							  f.GPS_mode = GPS_MODE_NAV;								//Nav mode start
-							  f.GPS_BARO_MODE = true;
-							  GPS_prev[LAT] = GPS_coord[LAT];
-							  GPS_prev[LON] = GPS_coord[LON];
-							  if (NAV_paused_at != 0) 
-								{
-								next_step = NAV_paused_at;
-								NAV_paused_at = 0;									//Clear paused step 
-								} 
-							else 
-								{
-								next_step = 1;
-								jump_times = -10;									//Reset jump counter
-								}
-							NAV_state = NAV_STATE_PROCESS_NEXT;
-                          #endif
-						  }
-					  else                                                          //None of the GPS Boxes are switched on
-						  {
-						  f.GPS_mode = GPS_MODE_NONE;
-						  f.GPS_BARO_MODE = false;
-						  f.THROTTLE_IGNORED = false;
-						  f.LAND_IN_PROGRESS = 0;
-						  f.THROTTLE_IGNORED = 0;
-						  #if !defined(I2C_GPS)
-						    NAV_state = NAV_STATE_NONE;
-                          #endif
-						  GPS_reset_nav();
-						  }
-					  prv_gps_modes = gps_modes_check;
-					  }
-				  } //numSat>5 
-
-			  else 
-				  { //numSat dropped below 5 during navigation
-				    if (f.GPS_mode == GPS_MODE_NAV) 
-						{
-						  NAV_paused_at = mission_step.number;
-						  f.GPS_mode = GPS_MODE_NONE;
-						  set_new_altitude(alt.EstAlt);							//and current altitude
-						  NAV_state = NAV_STATE_NONE;
-					      NAV_error = NAV_ERROR_SPOILED_GPS;
-						  prv_gps_modes = 0xff;									//invalidates mode check, to allow re evaluate rcOptions when numsats raised again
-						  
-						}
-					if (f.GPS_mode == GPS_MODE_HOLD || f.GPS_mode == GPS_MODE_RTH)
-						{
-						f.GPS_mode = GPS_MODE_NONE;
-						NAV_state = NAV_STATE_NONE;
-  				        NAV_error = NAV_ERROR_SPOILED_GPS;
-						prv_gps_modes = 0xff;									//invalidates mode check, to allow re evaluate rcOptions when numsats raised again
-						}
-					nav[0] = 0; nav[1] = 0;
-				  }
-			  } //f.GPS_FIX
-		  else  // GPS Fix dissapeared, very unlikely that we will be able to regain it, abort mission
-			  {
-	 		   f.GPS_mode = GPS_MODE_NONE;				
-			   #if !defined(I2C_GPS)
-			     NAV_state = NAV_STATE_NONE;
-			 	 NAV_paused_at = 0;
-				 NAV_error = NAV_ERROR_GPS_FIX_LOST;
-	           #endif
-			   GPS_reset_nav();
-			   prv_gps_modes = 0xff;				//Gives a chance to restart mission when regain fix
-			  }
-		  }  //copter is armed
-	  else   //copter is disarmed
-		  {																	
-		  f.GPS_mode = GPS_MODE_NONE;				
-		  f.GPS_BARO_MODE = false;
-		  f.THROTTLE_IGNORED = false;
-		  #if !defined(I2C_GPS)
-		    NAV_state = NAV_STATE_NONE;
-			NAV_paused_at = 0;
-			NAV_error = NAV_ERROR_DISARMED;
-          #endif
-		  GPS_reset_nav();
-		  }
-
-#endif
-
-
-
 
     #if defined(FIXEDWING) || defined(HELICOPTER)
       if (rcOptions[BOXPASSTHRU]) {f.PASSTHRU_MODE = 1;}
@@ -1259,10 +1042,6 @@ void loop () {
         #endif    
       case 3:
         taskOrder++;
-        #if GPS
-          if(GPS_Enable) GPS_NewData();  // I2C GPS: 160 us with no new data / 1250us! with new data 
-          break;
-        #endif
       case 4:
         taskOrder++;
         #if SONAR
@@ -1299,25 +1078,6 @@ void loop () {
     }
   #endif
 
- //*********************************** 
- // Disable ROLL, PITCH, YAW and THROTTLE sticks during mission and RTH
-#if defined(GPS_SERIAL)
-	if (GPS_conf.ignore_throttle == 1)
-		{
-		if (f.GPS_mode == GPS_MODE_NAV || f.GPS_mode == GPS_MODE_RTH)
-			{
-			//rcCommand[ROLL] = 0;
-			//rcCommand[PITCH] = 0;
-			//rcCommand[YAW] = 0;
-			f.THROTTLE_IGNORED = 1;
-			}
-		else 
-			f.THROTTLE_IGNORED = 0;
-		}
-#endif
-
-
- 
   #if MAG
     if (abs(rcCommand[YAW]) <70 && f.MAG_MODE) {
       int16_t dif = att.heading - magHold;
@@ -1334,17 +1094,6 @@ void loop () {
     if (f.BARO_MODE) {
       static uint8_t isAltHoldChanged = 0;
       static int16_t AltHoldCorr = 0;
-
-#if GPS
-	  if (f.LAND_IN_PROGRESS)
-		  {
-		  AltHoldCorr -= GPS_conf.land_speed;
-		  if(abs(AltHoldCorr) > 512) {
-			  AltHold += AltHoldCorr/512;
-			  AltHoldCorr %= 512;
-			  }
-		  }
-#endif
 
 	  if ( (abs(rcCommand[THROTTLE]-initialThrottleHold)>ALT_HOLD_THROTTLE_NEUTRAL_ZONE) && !f.THROTTLE_IGNORED) {
         // Slowly increase/decrease AltHold proportional to stick movement ( +100 throttle gives ~ +50 cm in 1 second with cycle time about 3-4ms)
@@ -1371,28 +1120,6 @@ void loop () {
     }
   #endif
   
-  #if GPS
-    if (( f.GPS_mode != GPS_MODE_NONE ) && f.GPS_FIX_HOME ) {
-      float sin_yaw_y = sin(att.heading*0.0174532925f);
-      float cos_yaw_x = cos(att.heading*0.0174532925f);
-        GPS_angle[ROLL]   = (nav[LON]*cos_yaw_x - nav[LAT]*sin_yaw_y) /10;
-        GPS_angle[PITCH]  = (nav[LON]*sin_yaw_y + nav[LAT]*cos_yaw_x) /10;
-    } else {
-      GPS_angle[ROLL]  = 0;
-      GPS_angle[PITCH] = 0;
-    }
-
-
-//Used to communicate back nav angles to the GPS simulator (for HIL testing)
-#if defined(GPS_SIMULATOR)
-	SerialWrite(2,0xa5);
-    SerialWrite16(2,nav[LAT]+rcCommand[PITCH]);
-	SerialWrite16(2,nav[LON]+rcCommand[ROLL]);
-	SerialWrite16(2,(nav[LAT]+rcCommand[PITCH])-(nav[LON]+rcCommand[ROLL]));		//check
-#endif
-
-  #endif
-
   //**** PITCH & ROLL & YAW PID ****
 #if PID_CONTROLLER == 1 // evolved oldschool
   if ( f.HORIZON_MODE ) prop = min(max(abs(rcCommand[PITCH]),abs(rcCommand[ROLL])),512);
@@ -1410,7 +1137,7 @@ void loop () {
     
     if (f.ANGLE_MODE || f.HORIZON_MODE) { // axis relying on ACC
       // 50 degrees max inclination
-      errorAngle         = constrain(rc + GPS_angle[axis],-500,+500) - att.angle[axis] + conf.angleTrim[axis]; //16 bits is ok here
+      errorAngle         = constrain(rc,-500,+500) - att.angle[axis] + conf.angleTrim[axis]; //16 bits is ok here
       errorAngleI[axis]  = constrain(errorAngleI[axis]+errorAngle,-10000,+10000);                                                // WindUp     //16 bits is ok here
 
       PTermACC           = mul(errorAngle,conf.pid[PIDLEVEL].P8)>>7; // 32 bits is needed for calculation: errorAngle*P8 could exceed 32768   16 bits is ok for result

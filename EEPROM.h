@@ -1,3 +1,8 @@
+/* 
+ * MWC Mini 基于 MWC 2.3
+ *
+ */
+
 #ifndef EEPROM_H_
 #define EEPROM_H_
 

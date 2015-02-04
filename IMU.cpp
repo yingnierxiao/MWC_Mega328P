@@ -1,3 +1,8 @@
+/* 
+ * MWC Mini 基于 MWC 2.3
+ *
+ */
+ 
 #include "Arduino.h"
 #include "config.h"
 #include "def.h"

@@ -1,3 +1,8 @@
+/* 
+ * MWC Mini 基于 MWC 2.3
+ *
+ */
+
 #ifndef OUTPUT_H_
 #define OUTPUT_H_
 

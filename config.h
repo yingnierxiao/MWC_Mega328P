@@ -1,3 +1,8 @@
+/* 
+ * MWC Mini 基于 MWC 2.3
+ *
+ */
+
 #ifndef CONFIG_H_
 #define CONFIG_H_
 

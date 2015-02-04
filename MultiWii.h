@@ -1,3 +1,8 @@
+/* 
+ * MWC Mini 基于 MWC 2.3
+ *
+ */
+
 #ifndef MULTIWII_H_
 #define MULTIWII_H_
 

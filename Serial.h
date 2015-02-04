@@ -1,3 +1,8 @@
+/* 
+ * MWC Mini 基于 MWC 2.3
+ *
+ */
+
 #ifndef SERIAL_H_
 #define SERIAL_H_
 

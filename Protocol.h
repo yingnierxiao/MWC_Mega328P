@@ -1,3 +1,8 @@
+/* 
+ * MWC Mini 基于 MWC 2.3
+ *
+ */
+
 #ifndef PROTOCOL_H_
 #define PROTOCOL_H_
 
