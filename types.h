@@ -1,5 +1,6 @@
 /* 
  * MWC Mini 基于 MWC 2.3
+ * 在 MWC 2.3 原版中无BUG，Waypoint 版本中 type.h 有一处BUG，enum box 定义中: #if define(GPS) 应为 #if GPS - skypup 2014.02.14
  *
  */
 
@@ -58,10 +59,6 @@ enum box {
   #if defined(CAMTRIG)
     BOXCAMTRIG,
   #endif
-  #if defined(GPS)
-    BOXGPSHOME,
-    BOXGPSHOLD,
-  #endif
   #if defined(FIXEDWING) || defined(HELICOPTER)
     BOXPASSTHRU,
   #endif
@@ -83,10 +80,6 @@ enum box {
   #endif
   #ifdef OSD_SWITCH
     BOXOSD,  
-#endif
-  #if defined(GPS)
-	BOXGPSNAV,
-	BOXLAND,
   #endif
   CHECKBOXITEMS
 };
@@ -222,63 +215,6 @@ typedef struct {
   uint8_t  running;       // toggle on arm & disarm to monitor for clean shutdown vs. powercut
   uint8_t  checksum;      // MUST BE ON LAST POSITION OF CONF STRUCTURE !
 } plog_t;
-#endif
-
-#if GPS
-
-// TODO: cross check with I2C gps and add relevant defines
-
- typedef struct {
-	  uint8_t	number;		//Waypoint number
-	  int32_t	pos[2];		//GPS position 
-	  uint8_t	action;		//Action to follow
-	  int16_t	parameter1;	//Parameter for the action
-	  int16_t	parameter2;	//Parameter for the action
-	  int16_t	parameter3;	//Parameter for the action
-	  uint32_t	altitude;	//Altitude in cm (AGL)
-	  uint8_t   flag;		//flags the last wp and other fancy things that are not yet defined
-	  uint8_t	checksum;	//this must be at the last position
-  } mission_step_struct;
-  
-
- typedef struct
-	 {
-
-	    //Don't forget to change the reply size in GUI when change this struct;
-
-	 // on/off flags
-	 // First byte 
-		uint8_t filtering : 1;
-		uint8_t lead_filter : 1;
-		uint8_t dont_reset_home_at_arm : 1;
-		uint8_t nav_controls_heading : 1;
-		uint8_t nav_tail_first : 1;
-		uint8_t nav_rth_takeoff_heading : 1;
-		uint8_t slow_nav : 1;
-		uint8_t wait_for_rth_alt : 1;
-      // Second byte
-        uint8_t ignore_throttle: 1;						// Disable stick controls during mission and RTH
-		uint8_t takeover_baro: 1;
-
-
-
-
-		uint16_t wp_radius;								// in cm
-		uint16_t safe_wp_distance;						// in meter
-		uint16_t nav_max_altitude;						// in meter
-		uint16_t nav_speed_max;							// in cm/s
-		uint16_t nav_speed_min;							// in cm/s
-	    uint8_t  crosstrack_gain;						// * 100 (0-2.56)
-		uint16_t nav_bank_max;							// degree * 100; (3000 default)
-		uint16_t rth_altitude;							// in meter
-		uint8_t  land_speed;							// between 50 and 255 (100 approx = 50cm/sec)
-		uint16_t fence;                                 // fence control in meters
-
-		uint8_t  max_wp_number;
-
-		uint8_t  checksum;
-	 } gps_conf_struct;
-
 #endif
 
 #endif /* TYPES_H_ */
