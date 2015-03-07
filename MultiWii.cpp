@@ -93,7 +93,7 @@ const char boxnames[] PROGMEM = // names for dynamic generation of config GUI
 ;
 
 const uint8_t boxids[] PROGMEM = {// permanent IDs associated to boxes. This way, you can rely on an ID number to identify a BOX function.
-  0, //"ARM;"
+  0, //"ARM;" 
   #if ACC
     1, //"ANGLE;"
     2, //"HORIZON;"
@@ -687,6 +687,12 @@ void go_arm() {
       f.ARMED = 1;
       headFreeModeHold = att.heading;
       magHold = att.heading;
+      
+      #if defined(QUADX)
+        // 解锁后校准陀螺 Skypup 2015.03.08
+        calibratingG=512;
+      #endif
+      
       #if defined(VBAT)
         if (analog.vbat > NO_VBAT) vbatMin = analog.vbat;
       #endif
@@ -814,18 +820,20 @@ void loop () {
         #endif
         errorAngleI[ROLL] = 0; errorAngleI[PITCH] = 0;
       #endif
-      if (conf.activate[BOXARM] > 0) {             // Arming/Disarming via ARM BOX
-        if ( rcOptions[BOXARM] && f.OK_TO_ARM ) go_arm(); else if (f.ARMED) go_disarm();
-      }
+      // 禁止用开关通道切换 ARM
+      // if (conf.activate[BOXARM] > 0) {             // Arming/Disarming via ARM BOX
+      //   if ( rcOptions[BOXARM] && f.OK_TO_ARM ) go_arm(); else if (f.ARMED) go_disarm();
+      // }
     }
     if(rcDelayCommand == 20) {
       if(f.ARMED) {                   // actions during armed
         #ifdef ALLOW_ARM_DISARM_VIA_TX_YAW
-          if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_LO + PIT_CE + ROL_CE) go_disarm();    // Disarm via YAW
+          if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_LO + PIT_CE + ROL_CE) 
+            if (f.HORIZON_MODE) go_disarm();    // Disarm via YAW
         #endif
-        #ifdef ALLOW_ARM_DISARM_VIA_TX_ROLL
-          if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_CE + PIT_CE + ROL_LO) go_disarm();    // Disarm via ROLL
-        #endif
+//        #ifdef ALLOW_ARM_DISARM_VIA_TX_ROLL
+//          if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_CE + PIT_CE + ROL_LO) go_disarm();    // Disarm via ROLL
+//        #endif
       } else {                        // actions during not armed
         i=0;
         if (rcSticks == THR_LO + YAW_LO + PIT_LO + ROL_CE) {    // GYRO calibration
@@ -848,18 +856,18 @@ void loop () {
             }
          } 
         #endif
-        #ifdef MULTIPLE_CONFIGURATION_PROFILES
-          if      (rcSticks == THR_LO + YAW_LO + PIT_CE + ROL_LO) i=1;    // ROLL left  -> Profile 1
-          else if (rcSticks == THR_LO + YAW_LO + PIT_HI + ROL_CE) i=2;    // PITCH up   -> Profile 2
-          else if (rcSticks == THR_LO + YAW_LO + PIT_CE + ROL_HI) i=3;    // ROLL right -> Profile 3
-          if(i) {
-            global_conf.currentSet = i-1;
-            writeGlobalSet(0);
-            readEEPROM();
-            blinkLED(2,40,i);
-            alarmArray[0] = i;
-          }
-        #endif
+//        #ifdef MULTIPLE_CONFIGURATION_PROFILES
+//          if      (rcSticks == THR_LO + YAW_LO + PIT_CE + ROL_LO) i=1;    // ROLL left  -> Profile 1
+//          else if (rcSticks == THR_LO + YAW_LO + PIT_HI + ROL_CE) i=2;    // PITCH up   -> Profile 2
+//          else if (rcSticks == THR_LO + YAW_LO + PIT_CE + ROL_HI) i=3;    // ROLL right -> Profile 3
+//          if(i) {
+//            global_conf.currentSet = i-1;
+//            writeGlobalSet(0);
+//            readEEPROM();
+//            blinkLED(2,40,i);
+//            alarmArray[0] = i;
+//          }
+//        #endif
         if (rcSticks == THR_LO + YAW_HI + PIT_HI + ROL_CE) {            // Enter LCD config
           #if defined(LCD_CONF)
             configurationLoop(); // beginning LCD configuration
@@ -867,11 +875,12 @@ void loop () {
           previousTime = micros();
         }
         #ifdef ALLOW_ARM_DISARM_VIA_TX_YAW
-          else if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_HI + PIT_CE + ROL_CE) go_arm();      // Arm via YAW
+          else if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_HI + PIT_CE + ROL_CE) 
+            if (f.HORIZON_MODE) go_arm();      // Arm via YAW
         #endif
-        #ifdef ALLOW_ARM_DISARM_VIA_TX_ROLL
-          else if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_CE + PIT_CE + ROL_HI) go_arm();      // Arm via ROLL
-        #endif
+//        #ifdef ALLOW_ARM_DISARM_VIA_TX_ROLL
+//          else if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_CE + PIT_CE + ROL_HI) go_arm();      // Arm via ROLL
+//        #endif
         #ifdef LCD_TELEMETRY_AUTO
           else if (rcSticks == THR_LO + YAW_CE + PIT_HI + ROL_LO) {              // Auto telemetry ON/OFF
             if (telemetry_auto) {
@@ -898,18 +907,18 @@ void loop () {
         #if MAG
           else if (rcSticks == THR_HI + YAW_HI + PIT_LO + ROL_CE) f.CALIBRATE_MAG = 1;  // throttle=max, yaw=right, pitch=min
         #endif
-        i=0;
-        if      (rcSticks == THR_HI + YAW_CE + PIT_HI + ROL_CE) {conf.angleTrim[PITCH]+=2; i=1;}
-        else if (rcSticks == THR_HI + YAW_CE + PIT_LO + ROL_CE) {conf.angleTrim[PITCH]-=2; i=1;}
-        else if (rcSticks == THR_HI + YAW_CE + PIT_CE + ROL_HI) {conf.angleTrim[ROLL] +=2; i=1;}
-        else if (rcSticks == THR_HI + YAW_CE + PIT_CE + ROL_LO) {conf.angleTrim[ROLL] -=2; i=1;}
-        if (i) {
-          writeParams(1);
-          rcDelayCommand = 0;    // allow autorepetition
-          #if defined(LED_RING)
-            blinkLedRing();
-          #endif
-        }
+//        i=0;
+//        if      (rcSticks == THR_HI + YAW_CE + PIT_HI + ROL_CE) {conf.angleTrim[PITCH]+=2; i=1;}
+//        else if (rcSticks == THR_HI + YAW_CE + PIT_LO + ROL_CE) {conf.angleTrim[PITCH]-=2; i=1;}
+//        else if (rcSticks == THR_HI + YAW_CE + PIT_CE + ROL_HI) {conf.angleTrim[ROLL] +=2; i=1;}
+//        else if (rcSticks == THR_HI + YAW_CE + PIT_CE + ROL_LO) {conf.angleTrim[ROLL] -=2; i=1;}
+//        if (i) {
+//          writeParams(1);
+//          rcDelayCommand = 0;    // allow autorepetition
+//          #if defined(LED_RING)
+//            blinkLedRing();
+//          #endif
+//        }
       }
     }
     #if defined(LED_FLASHER)
@@ -1253,6 +1262,8 @@ void loop () {
 #endif
   mixTable();
   // do not update servos during unarmed calibration of sensors which are sensitive to vibration
-  if ( (f.ARMED) || ((!calibratingG) && (!calibratingA)) ) writeServos();
-  writeMotors();
+  if ( (f.ARMED) || ((!calibratingG) && (!calibratingA)) ) 
+    writeServos();
+  if ( (!calibratingG) && (!calibratingA) ) 
+    writeMotors();  // 校准传感器时，电机不响应。
 }
