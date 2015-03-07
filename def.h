@@ -216,7 +216,8 @@
   #define PRI_SERVO_FROM   TRI_SERVO // use only servo 6 (or 4 with Mega HW PWM)
   #define PRI_SERVO_TO     TRI_SERVO
 #elif defined(QUADP) || defined(QUADX) || defined(Y4)|| defined(VTAIL4)
-  #define NUMBER_MOTOR     4
+  // #define NUMBER_MOTOR     4
+  #define NUMBER_MOTOR     8  // 调整管脚次序 Skypup 2015.03.08
 #elif defined(Y6) || defined(HEX6) || defined(HEX6X) || defined(HEX6H)
   #define NUMBER_MOTOR     6
 #elif defined(OCTOX8) || defined(OCTOFLATP) || defined(OCTOFLATX)

@@ -412,54 +412,54 @@ void writeMotors() { // [1000;2000] => [125;250]
   #if defined(PROMINI)
     #if (NUMBER_MOTOR > 0)
       #ifdef EXT_MOTOR_RANGE            // 490Hz
-        OCR1A = ((motor[0]>>2) - 250);
+        OCR1A = ((motor[3]>>2) - 250);
       #elif defined(EXT_MOTOR_32KHZ)
-        OCR1A = (motor[0] - 1000) >> 2; //  pin 9
+        OCR1A = (motor[3] - 1000) >> 2; //  pin 9
       #elif defined(EXT_MOTOR_4KHZ)
-        OCR1A = (motor[0] - 1000) << 1;
+        OCR1A = (motor[3] - 1000) << 1;
       #elif defined(EXT_MOTOR_1KHZ)
-        OCR1A = (motor[0] - 1000) << 3;
+        OCR1A = (motor[3] - 1000) << 3;
       #else
-        OCR1A = motor[0]>>3; //  pin 9
+        OCR1A = motor[3]>>3; //  pin 9
       #endif
     #endif
     #if (NUMBER_MOTOR > 1)
       #ifdef EXT_MOTOR_RANGE            // 490Hz
-        OCR1B = ((motor[1]>>2) - 250);
+        OCR1B = ((motor[2]>>2) - 250);
       #elif defined(EXT_MOTOR_32KHZ)
-        OCR1B = (motor[1] - 1000) >> 2; //  pin 10
+        OCR1B = (motor[2] - 1000) >> 2; //  pin 10
       #elif defined(EXT_MOTOR_4KHZ)
-        OCR1B = (motor[1] - 1000) << 1;
+        OCR1B = (motor[2] - 1000) << 1;
       #elif defined(EXT_MOTOR_1KHZ)
-        OCR1B = (motor[1] - 1000) << 3;
+        OCR1B = (motor[2] - 1000) << 3;
       #else
-        OCR1B = motor[1]>>3; //  pin 10
+        OCR1B = motor[2]>>3; //  pin 10
       #endif
     #endif
     #if (NUMBER_MOTOR > 2)
       #ifdef EXT_MOTOR_RANGE            // 490Hz
-        OCR2A = ((motor[2]>>2) - 250);
+        OCR2A = ((motor[0]>>2) - 250);
       #elif defined(EXT_MOTOR_32KHZ)
-        OCR2A = (motor[2] - 1000) >> 2; //  pin 11
+        OCR2A = (motor[0] - 1000) >> 2; //  pin 11
       #elif defined(EXT_MOTOR_4KHZ)
-        OCR2A = (motor[2] - 1000) >> 2;
+        OCR2A = (motor[0] - 1000) >> 2;
       #elif defined(EXT_MOTOR_1KHZ)
-        OCR2A = (motor[2] - 1000) >> 2;
+        OCR2A = (motor[0] - 1000) >> 2;
       #else
-        OCR2A = motor[2]>>3; //  pin 11
+        OCR2A = motor[0]>>3; //  pin 11
       #endif
     #endif
     #if (NUMBER_MOTOR > 3)
       #ifdef EXT_MOTOR_RANGE            // 490Hz
-        OCR2B = ((motor[3]>>2) - 250);
+        OCR2B = ((motor[7]>>2) - 250);
       #elif defined(EXT_MOTOR_32KHZ)
-        OCR2B = (motor[3] - 1000) >> 2; //  pin 3
+        OCR2B = (motor[7] - 1000) >> 2; //  pin 3
       #elif defined(EXT_MOTOR_4KHZ)
-        OCR2B = (motor[3] - 1000) >> 2;
+        OCR2B = (motor[7] - 1000) >> 2;
       #elif defined(EXT_MOTOR_1KHZ)
-        OCR2B = (motor[3] - 1000) >> 2;
+        OCR2B = (motor[7] - 1000) >> 2;
       #else
-        OCR2B = motor[3]>>3; //  pin 3
+        OCR2B = motor[7]>>3; //  pin 3
       #endif
     #endif
     #if (NUMBER_MOTOR > 4)
@@ -483,7 +483,7 @@ void writeMotors() { // [1000;2000] => [125;250]
     #if (NUMBER_MOTOR > 6) //note: EXT_MOTOR_RANGE not possible here
       atomicPWM_PINA2_highState = ((motor[6]-1000)>>2)+5;
       atomicPWM_PINA2_lowState  = 245-atomicPWM_PINA2_highState;
-      atomicPWM_PIN12_highState = ((motor[7]-1000)>>2)+5;
+      atomicPWM_PIN12_highState = ((motor[1]-1000)>>2)+5;
       atomicPWM_PIN12_lowState  = 245-atomicPWM_PIN12_highState;
     #endif
   #endif
@@ -1168,6 +1168,11 @@ void mixTable() {
     motor[1] = PIDMIX(-1,-1,-1); //FRONT_R
     motor[2] = PIDMIX(+1,+1,-1); //REAR_L
     motor[3] = PIDMIX(+1,-1,+1); //FRONT_L
+    
+    motor[4] = 0;
+    motor[5] = 0;
+    motor[6] = 0;
+    motor[7] = 0;
   #elif defined( Y4 )
     motor[0] = PIDMIX(+0,+1,-1);   //REAR_1 CW
     motor[1] = PIDMIX(-1,-1, 0); //FRONT_R CCW
