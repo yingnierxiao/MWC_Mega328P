@@ -689,8 +689,9 @@ void go_arm() {
       magHold = att.heading;
       
       #if defined(QUADX)
-        // 解锁后校准陀螺 Skypup 2015.03.08
-        calibratingG=512;
+        // 解锁后校准 Skypup 2015.03.08
+        calibratingA = 512;
+        calibratingG = 512;
       #endif
       
       #if defined(VBAT)
@@ -1146,7 +1147,8 @@ void loop () {
     
     if (f.ANGLE_MODE || f.HORIZON_MODE) { // axis relying on ACC
       // 50 degrees max inclination
-      errorAngle         = constrain(rc,-500,+500) - att.angle[axis] + conf.angleTrim[axis]; //16 bits is ok here
+      // errorAngle         = constrain(rc,-500,+500) - att.angle[axis] + conf.angleTrim[axis]; //16 bits is ok here
+      errorAngle         = constrain(rc,-500,+500) - att.angle[axis]; //16 bits is ok here
       errorAngleI[axis]  = constrain(errorAngleI[axis]+errorAngle,-10000,+10000);                                                // WindUp     //16 bits is ok here
 
       PTermACC           = mul(errorAngle,conf.pid[PIDLEVEL].P8)>>7; // 32 bits is needed for calculation: errorAngle*P8 could exceed 32768   16 bits is ok for result
@@ -1204,7 +1206,8 @@ void loop () {
     //-----Get the desired angle rate depending on flight mode
     if ((f.ANGLE_MODE || f.HORIZON_MODE) && axis<2 ) { // MODE relying on ACC
       // calculate error and limit the angle to 50 degrees max inclination
-      errorAngle = constrain((rcCommand[axis]<<1) + GPS_angle[axis],-500,+500) - att.angle[axis] + conf.angleTrim[axis]; //16 bits is ok here
+      // errorAngle = constrain((rcCommand[axis]<<1) + GPS_angle[axis],-500,+500) - att.angle[axis] + conf.angleTrim[axis]; //16 bits is ok here
+      errorAngle = constrain((rcCommand[axis]<<1) + GPS_angle[axis],-500,+500) - att.angle[axis]; //16 bits is ok here
     }
     if (axis == 2) {//YAW is always gyro-controlled (MAG correction is applied to rcCommand)
       AngleRateTmp = (((int32_t) (conf.yawRate + 27) * rcCommand[2]) >> 5);
