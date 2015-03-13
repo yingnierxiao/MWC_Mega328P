@@ -310,9 +310,9 @@
   #define PPM_PIN_INTERRUPT          attachInterrupt(0, rxInt, RISING); //PIN 0
   #define SPEK_SERIAL_PORT           0
   //RX PIN assignment inside the port //for PORTD
-  #define THROTTLEPIN                2
-  #define ROLLPIN                    4
-  #define PITCHPIN                   5
+  #define THROTTLEPIN                5
+  #define ROLLPIN                    2
+  #define PITCHPIN                   4
   #define YAWPIN                     6
   #define AUX1PIN                    7
   #define AUX2PIN                    0 // optional PIN 8 or PIN 12
